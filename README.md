@@ -91,11 +91,9 @@ Objective: build an interpretable and statistically sound PD model.
 
 ## 💰 Step 3 — Loss Given Default (LGD)
 
-LGD calculated for Charged Off loans:
+LGD (Loss Given Default) is defined as:
 
-\[
-LGD = \frac{Funded Amount - Total Principal Recovered - Recoveries}{Funded Amount}
-\]
+LGD = (Exposure at Default − Recoveries) / Exposure at Default
 
 - Distribution analysis
 - Average LGD estimation

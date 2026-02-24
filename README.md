@@ -187,8 +187,19 @@ No advanced ML libraries used — focus is on fundamentals.
 
 ## 📌 Status
 
-🟡 Project Initialized  
-Data cleaning and modelling notebooks under development.
+## Project Status
+
+✔ Data Preparation Completed  
+- Missing value treatment with structured approach  
+- Outlier capping using 1%–99% percentile winsorization  
+- Feature engineering (credit age variables)  
+- Missing indicator variables created  
+- Clean modelling dataset exported (`loan_data_pd_clean.csv`)
+
+Next Step:
+- Weight of Evidence (WOE) binning  
+- Information Value (IV) calculation  
+- PD model development
 
 ---
 

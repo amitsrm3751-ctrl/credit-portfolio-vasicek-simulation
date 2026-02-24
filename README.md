@@ -46,27 +46,23 @@ For modelling integrity:
 - `Fully Paid` → Default = 0  
 - `Current` loans are excluded from PD training  
 
----
+## 📂 Project Structure
 
-## 🧱 Project Structure
-
+```
 credit-portfolio-vasicek-simulation/
-
 │
 ├── data/
-│ └── Lending_Data.csv
+│   └── Lending_Data.csv
 │
 ├── notebooks/
-│ ├── 01_data_cleaning.ipynb
-│ ├── 02_pd_model.ipynb
-│ ├── 03_lgd_estimation.ipynb
-│ ├── 04_ead_estimation.ipynb
-│ └── 05_vasicek_simulation.ipynb
+│   ├── 01_data_cleaning.ipynb
+│   ├── 02_pd_model.ipynb
+│   ├── 03_lgd_estimation.ipynb
+│   ├── 04_ead_estimation.ipynb
+│   └── 05_vasicek_simulation.ipynb
 │
 └── README.md
-
----
-
+```
 ## 🔎 Step 1 — Data Cleaning
 
 - Filter relevant loan statuses  
@@ -95,11 +91,9 @@ Objective: build an interpretable and statistically sound PD model.
 
 ## 💰 Step 3 — Loss Given Default (LGD)
 
-LGD calculated for Charged Off loans:
+LGD (Loss Given Default) is defined as:
 
-\[
-LGD = \frac{Funded Amount - Total Principal Recovered - Recoveries}{Funded Amount}
-\]
+LGD = (Exposure at Default − Recoveries) / Exposure at Default
 
 - Distribution analysis
 - Average LGD estimation
@@ -138,9 +132,9 @@ Monte Carlo simulation is performed under the **Vasicek single-factor model**:
 
 Asset correlation (ρ) varied from:
 
-\[
-ρ = 0.12 \text{ to } 0.24
-\]
+
+ρ = 0.12  to  0.24
+
 
 to analyze its impact on tail risk and capital requirements.
 

@@ -50,16 +50,18 @@ For modelling integrity:
 
 ```
 credit-portfolio-vasicek-simulation/
+
 │
 ├── data/
-│   └── Lending_Data.csv
+│   └── processed/
+│       └── loan_data_cleaned.csv
 │
 ├── notebooks/
-│   ├── 01_data_cleaning.ipynb
-│   ├── 02_pd_model.ipynb
-│   ├── 03_lgd_estimation.ipynb
-│   ├── 04_ead_estimation.ipynb
-│   └── 05_vasicek_simulation.ipynb
+│   ├── 01_data_preparation.ipynb
+│   ├── 02_variable_diagnostics.ipynb
+│   ├── 03_binning_woe_iv.ipynb
+│   ├── 04_pd_model_logistic.ipynb
+│   └── 05_vasicek_portfolio_simulation.ipynb
 │
 └── README.md
 ```
@@ -71,7 +73,17 @@ credit-portfolio-vasicek-simulation/
 - Handle missing values  
 - Convert financial columns to numeric  
 
-Focus: clean modelling dataset with no forward-looking bias.
+Before building the PD model, variables are examined to understand their statistical properties and relationship with default.
+
+Diagnostics performed include:
+
+- Summary statistics and distribution analysis
+- Skewness and kurtosis examination
+- Event rate analysis across categorical variables
+- Identification of multicollinearity (e.g., grade vs sub_grade)
+- Removal of redundant predictors
+
+Focus: understand variable behaviour and ensure predictors are suitable for modelling.
 
 ---
 
@@ -213,23 +225,27 @@ No advanced ML libraries used — focus is on fundamentals.
 - LGD is based on observed recoveries and does not incorporate downturn LGD adjustment.
 - Correlation parameter is assumed rather than empirically calibrated.
 - Simulation results approximate large portfolio behavior; smaller portfolios may exhibit higher loss variance.
-## 📌 Status
 
-## Project Status
+## 📌 Project Status
 
 ✔ Data Preparation Completed  
 - Missing value treatment with structured approach  
 - Outlier capping using 1%–99% percentile winsorization  
 - Feature engineering (credit age variables)  
 - Missing indicator variables created  
-- Clean modelling dataset exported (`loan_data_pd_clean.csv`)
+- Clean modelling dataset exported (`loan_data_cleaned.csv`)
 
-Next Step:
-- Weight of Evidence (WOE) binning  
-- Information Value (IV) calculation  
-- PD model development
+✔ Variable Diagnostics Completed  
+- Summary statistics and distribution analysis  
+- Skewness and kurtosis evaluation  
+- Event rate analysis for `grade` and `sub_grade`  
+- Multicollinearity identified and handled (`grade` removed)
 
----
+Next Steps:
+- Weight of Evidence (WoE) binning
+- Information Value (IV) calculation
+- Logistic Regression PD model
+- Vasicek portfolio loss simulation
 
 ## 👤 Author
 

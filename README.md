@@ -184,11 +184,50 @@ No advanced ML libraries used — focus is on fundamentals.
 - Comparison of simulation vs Basel IRB formula  
 
 ---
+---
 
+## 📌 Key Assumptions
+
+- Portfolio treated as a large homogeneous retail portfolio for Vasicek simulation.
+- Loans treated as unsecured retail exposures.
+- No Credit Risk Mitigation (CRM) adjustments applied.
+- Asset correlation (ρ) is exogenously specified and varied for sensitivity analysis.
+- Maturity adjustment is not incorporated (retail simplification).
+- Economic Capital estimated at 99.9% confidence level using Monte Carlo simulation.
+
+---
+
+## 🏛 Regulatory Interpretation
+
+- The Vasicek single-factor framework underpins the Basel IRB capital formula.
+- Under the Standardised Approach, credit risk mitigation (CRM) typically reduces Exposure at Default (EAD).
+- Under the IRB approach, collateral more commonly affects Loss Given Default (LGD).
+- This project focuses on unsecured retail exposures; therefore, CRM-adjusted EAD is not applicable.
+- Economic Capital estimated here is model-based and may differ from Regulatory Capital requirements.
+
+---
+
+## ⚠ Model Limitations
+
+- Homogeneous portfolio assumption may understate concentration risk.
+- LGD is based on observed recoveries and does not incorporate downturn LGD adjustment.
+- Correlation parameter is assumed rather than empirically calibrated.
+- Simulation results approximate large portfolio behavior; smaller portfolios may exhibit higher loss variance.
 ## 📌 Status
 
-🟡 Project Initialized  
-Data cleaning and modelling notebooks under development.
+## Project Status
+
+✔ Data Preparation Completed  
+- Missing value treatment with structured approach  
+- Outlier capping using 1%–99% percentile winsorization  
+- Feature engineering (credit age variables)  
+- Missing indicator variables created  
+- Clean modelling dataset exported (`loan_data_pd_clean.csv`)
+
+Next Step:
+- Weight of Evidence (WOE) binning  
+- Information Value (IV) calculation  
+- PD model development
 
 ---
 

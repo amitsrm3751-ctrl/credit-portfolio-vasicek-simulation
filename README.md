@@ -144,10 +144,10 @@ Steps include:
 Model performance metrics include:
 
 * ROC Curve
-* **AUC ≈ 0.70**
+* **AUC ≈ 0.70** (acceptable discriminatory power for retail portfolios)
 * KS Statistic ≈ **0.30**
 * Gini coefficient
-
+The model prioritizes interpretability and regulatory alignment over purely predictive performance.
 The objective is to produce a **transparent and interpretable credit risk model**.
 
 ---
@@ -171,7 +171,7 @@ To incorporate portfolio credit risk dependence, the project estimates the **ass
 Steps:
 
 1. Aggregate **observed default rates by year**
-2. Transform default rates using the **inverse normal transformation**
+2. Transform default rates using the **inverse normal (Gaussian) transformation** to estimate the latent systematic factor under the Vasicek framework.
 3. Estimate the **variance of the systematic factor**
 
 The estimated asset correlation is approximately:

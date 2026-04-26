@@ -1,291 +1,266 @@
 # 📊 Credit Portfolio Risk Modelling & Vasicek Framework
 
-A structured end-to-end **credit risk modelling project** using the public **Lending Club loan dataset**.
+This project builds an end-to-end **loan-level credit risk modelling pipeline**, connecting borrower-level models (PD, LGD, EAD) with **portfolio-level risk analysis** using the Vasicek single-factor framework.
 
-This project builds a transparent and interpretable modelling pipeline covering:
-
-* Probability of Default (**PD**)
-* Asset correlation estimation (**ρ**) using the **Vasicek framework**
-* Future extensions for **Loss Given Default (LGD)** and **Exposure at Default (EAD)**
-* Portfolio loss modelling and **economic capital estimation**
-
-The objective is to connect **borrower-level credit modelling** with **portfolio-level credit risk analysis**.
+The objective is to replicate a simplified but **industry-aligned Basel-style credit risk workflow**, from data preparation to expected loss and correlation modelling.
 
 ---
 
 # 🎯 Project Objective
 
-This project builds a simplified but realistic **credit risk modelling framework** that:
+The project develops a structured credit risk framework that:
 
-1. Estimates borrower-level **Probability of Default (PD)** using Logistic Regression
-2. Applies **Weight of Evidence (WoE)** binning and **Information Value (IV)** for variable selection
-3. Calibrates PD estimates using **intercept adjustment**
-4. Estimates **asset correlation (ρ)** using the **Vasicek single-factor model**
-5. Provides a foundation for **portfolio credit risk simulation**
+* Estimates **Probability of Default (PD)** using Logistic Regression
+* Models **Loss Given Default (LGD)** using a two-stage approach
+* Estimates **Exposure at Default (EAD)** using a CCF-based regression
+* Computes **Expected Credit Loss (ECL = PD × LGD × EAD)** at loan level
+* Estimates **asset correlation (ρ)** using the Vasicek framework
 
-The project bridges **retail credit modelling techniques** with **portfolio credit risk theory** used in regulatory frameworks such as **Basel IRB**.
+It bridges **retail credit modelling techniques** with **portfolio credit risk theory** used in Basel IRB approaches.
 
 ---
 
 # 📂 Dataset
 
-**Source:** Public Lending Club Loan Dataset
+**Source:** Lending Club Loan Dataset
 
 The dataset includes:
 
-* Loan amount and term
-* Interest rate and installment
+* Loan amount, term, interest rate
 * Borrower characteristics
 * Loan status (Fully Paid / Charged Off / Current)
-* Recovery amounts
-* Outstanding principal
+* Recovery and exposure variables
 
-Target definition used for PD modelling:
+### 🎯 Target Definition
 
-```
-Charged Off  → Default = 1
-Fully Paid   → Default = 0
-```
+* Charged Off → **Default = 1**
+* Fully Paid → **Default = 0**
+* Loans with status *Current* are excluded
 
-Loans with status **Current** are excluded from model training.
-
-⚠ **Note:**
-Due to GitHub file size limits, the raw dataset is **not included in this repository**.
+⚠️ Dataset is not included due to GitHub size limits.
 
 ---
 
 # 📂 Project Structure
 
 ```
-credit-risk-modelling/
+credit-portfolio-vasicek-simulation/
 
 ├── data/
-│
 ├── notebooks/
 │   ├── 01_data_preparation.ipynb
 │   ├── 02_variable_diagnostics.ipynb
 │   ├── 03_woe_binning_and_iv_selection.ipynb
 │   ├── 04_pd_model_logistic.ipynb
 │   ├── 05_rho_estimation_vasicek.ipynb
+│   ├── 06_lgd_ead_ecl_model.ipynb
 │
 ├── results/
 ├── src/
-│
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The workflow is organized as **sequential modelling notebooks** so the modelling pipeline can be followed step-by-step.
-
 ---
 
 # 🔎 Step 1 — Data Preparation
 
-Key preprocessing steps include:
-
 * Filtering relevant loan statuses
-* Creating the binary **default indicator**
-* Removing potential **data leakage variables**
+* Creating binary default variable
+* Removing data leakage variables
 * Handling missing values
-* Converting financial variables to numeric format
-* Winsorizing extreme values (1% – 99%)
+* Winsorizing extreme values (1%–99%)
 * Creating missing indicator variables
-
-The output is a **clean modelling dataset** for credit risk analysis.
 
 ---
 
 # 📊 Step 2 — Variable Diagnostics
 
-Exploratory analysis is performed to understand predictor behaviour:
-
-* Summary statistics
-* Distribution analysis
-* Skewness and kurtosis examination
-* Event rate analysis across categorical variables
-* Multicollinearity inspection
+* Distribution and skewness analysis
+* Event rate analysis
+* Multicollinearity checks
 
 Example:
 
+* `grade` removed due to high correlation with `sub_grade`
+
+---
+
+# 🧮 Step 3 — WoE Binning & IV Selection
+
+* Weight of Evidence (WoE) transformation applied
+* Ensures monotonic relationship with default
+* Improves interpretability of logistic regression
+
+Variables selected using **Information Value (IV)**
+
+---
+
+# 📈 Step 4 — Probability of Default (PD)
+
+* Logistic Regression (Statsmodels)
+* Feature selection using statistical significance
+* Model evaluation:
+
+  * AUC ≈ 0.70
+  * KS ≈ 0.30
+
+### ⚙ PD Calibration
+
+PD calibrated using **intercept adjustment**, based on:
+
+*Model-Based PD Rating Scale Calibration – Logistic Regression Intercept Optimization*
+
+Ensures alignment between predicted and observed default rates.
+
+---
+
+# 💰 Step 5 — LGD, EAD & ECL Modelling
+
+### LGD Model
+
+* Two-stage approach:
+
+  * Probability of recovery
+  * Recovery rate conditional on recovery
+
+### EAD Model
+
+* Estimated using **Credit Conversion Factor (CCF)** regression
+
+### ECL Calculation
+
 ```
-grade vs sub_grade → high correlation
+ECL = PD × LGD × EAD
 ```
 
-To avoid redundancy, **grade is removed from the model**.
+* Computed at **loan level**
+* Aggregated to portfolio level for analysis
 
 ---
 
-# 🧮 Step 3 — WoE Binning & Information Value
+# 🔧 Data Alignment (Critical Fix)
 
-Predictor variables are transformed using **Weight of Evidence (WoE)** binning.
+Initially, PD, LGD, and EAD were aligned using row order.
 
-Advantages of WoE transformation:
+This was corrected using **ID-based merging**, ensuring:
 
-* Creates **monotonic relationships with default**
-* Improves **interpretability of logistic regression coefficients**
-* Aligns with traditional **credit scorecard modelling**
-
-Predictive strength of variables is evaluated using **Information Value (IV)**.
+* Accurate loan-level matching
+* Robustness to dataset ordering
+* Production-grade data integrity
 
 ---
 
-# 📈 Step 4 — Probability of Default (PD) Model
+# 🧮 Step 6 — Asset Correlation (ρ)
 
-The PD model is estimated using **Logistic Regression (Statsmodels)**.
+* Default rates aggregated by year
+* Gaussian transformation applied
+* Vasicek framework used to estimate correlation
 
-Steps include:
-
-* Train / Test split
-* Logistic regression estimation
-* Statistical significance testing (p-values)
-* Feature selection based on model diagnostics
-
-Model performance metrics include:
-
-* ROC Curve
-* **AUC ≈ 0.70** (acceptable discriminatory power for retail portfolios)
-* KS Statistic ≈ **0.30**
-* Gini coefficient
-The model prioritizes interpretability and regulatory alignment over purely predictive performance.
-The objective is to produce a **transparent and interpretable credit risk model**.
-
----
-
-# ⚙ PD Calibration
-
-After estimation, the PD model is calibrated using **logistic regression intercept adjustment**.
-
-This follows the concept described in the paper:
-
-**“Model-Based PD Rating Scale Calibration – Logistic Regression Intercept Optimization”**
-
-Calibration aligns the **average predicted PD** with the **observed portfolio default rate**, ensuring consistency between model predictions and empirical default frequency.
-
----
-
-# 🧮 Asset Correlation Estimation (ρ)
-
-To incorporate portfolio credit risk dependence, the project estimates the **asset correlation parameter (ρ)** using the **Vasicek single-factor framework**.
-
-Steps:
-
-1. Aggregate **observed default rates by year**
-2. Transform default rates using the **inverse normal (Gaussian) transformation** to estimate the latent systematic factor under the Vasicek framework.
-3. Estimate the **variance of the systematic factor**
-
-The estimated asset correlation is approximately:
+**Estimated:**
 
 ```
 ρ ≈ 0.025
 ```
 
-This value is consistent with typical **retail credit portfolio correlations**.
+Consistent with retail credit portfolios.
 
 ---
 
-# 💰 Portfolio Risk Framework
+# 📊 Portfolio Risk Framework
 
-In portfolio credit risk modelling:
+At loan level:
 
 ```
 Expected Loss = PD × LGD × EAD
 ```
 
-Where:
+At portfolio level:
 
-* **PD** = Probability of Default
-* **LGD** = Loss Given Default
-* **EAD** = Exposure at Default
-
-This project currently estimates:
-
-* **PD**
-* **Asset correlation (ρ)**
-
-Future extensions will include modelling of **LGD and EAD**, enabling full **portfolio loss simulation**.
+* Aggregated ECL
+* Year-on-year loss trends
+* Risk component analysis (PD, LGD, EAD)
 
 ---
 
-# 📊 Expected Outputs
+# 📊 Key Outputs
 
-* Borrower-level **PD estimates**
-* Variable predictive strength analysis
-* Asset correlation estimation
-* Portfolio credit risk parameters for simulation
+* Loan-level PD, LGD, EAD
+* Expected Credit Loss (ECL)
+* Variable importance and diagnostics
+* Asset correlation (ρ)
+* Portfolio-level loss insights
 
 ---
 
 # 🧠 Learning Focus
 
-This project reinforces concepts in:
-
-* Retail credit risk modelling
-* Logistic regression PD models
-* WoE binning and IV analysis
+* Credit risk modelling (PD, LGD, EAD)
+* WoE & IV techniques
+* Logistic regression interpretation
 * Portfolio credit risk theory
-* Vasicek asset correlation estimation
-* Credit risk modelling pipelines
+* Vasicek model implementation
+* End-to-end modelling pipeline design
 
 ---
 
 # ⚙️ Tech Stack
 
 * Python
-* pandas
-* numpy
-* scipy
-* statsmodels
+* pandas, numpy
+* scipy, statsmodels
 * scikit-learn
 * matplotlib
 
-The project intentionally emphasizes **interpretable statistical modelling** rather than complex machine learning approaches.
+Focus is on **interpretability and financial logic**, not black-box ML.
 
 ---
 
 # 🚀 Future Extensions
 
-Planned additions include:
-
-* **LGD modelling**
-* **EAD estimation**
-* **Monte Carlo Vasicek portfolio simulation**
-* Portfolio **loss distribution**
-* **Economic capital estimation**
+* Monte Carlo Vasicek simulation
+* Portfolio loss distribution
+* Economic capital (99.9 percentile)
 * Stress testing scenarios
+* Scenario-based credit risk analysis
 
 ---
 
 # 📌 Model Assumptions
 
-* Portfolio treated as a **large homogeneous retail portfolio**
-* Loans treated as **unsecured exposures**
-* No credit risk mitigation applied
-* Correlation captured through the **Vasicek systematic factor**
+* Large homogeneous retail portfolio
+* Unsecured loans
+* No credit risk mitigation
+* Single systematic factor (Vasicek)
 
 ---
 
 # 📌 Project Status
 
-✔ Data Preparation Completed
-✔ Variable Diagnostics Completed
-✔ WoE Binning & IV Analysis Completed
-✔ Logistic Regression PD Model
-✔ PD Calibration
-✔ Asset Correlation Estimation (ρ)
+✔ Data Preparation
+✔ Variable Diagnostics
+✔ WoE & IV Selection
+✔ PD Model + Calibration
+✔ LGD Model
+✔ EAD Model
+✔ ECL Computation
+✔ Asset Correlation (ρ)
 
-Next Steps:
-
-* LGD modelling
-* EAD estimation
-* Portfolio loss simulation
-* Economic capital estimation
+**Next:** Portfolio Simulation & Economic Capital
 
 ---
 
 # 👤 Author
 
 **Amitabh Gogoi**
-
 Credit Risk & Financial Analysis
-IFRS-9 | PD / LGD / EAD | Portfolio Risk Analytics
+PD / LGD / EAD | IFRS-9 | Portfolio Risk Analytics
+
+---
+
+# 📌 Summary
+
+This project demonstrates a **complete, interpretable credit risk pipeline**, moving from borrower-level modelling to portfolio-level risk — aligned with real-world banking frameworks.
+
+---

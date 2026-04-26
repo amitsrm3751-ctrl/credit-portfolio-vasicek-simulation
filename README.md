@@ -1,52 +1,62 @@
-# Credit Risk Modelling & Portfolio Simulation using Vasicek Framework
+# Credit Risk Modelling & Portfolio Simulation (Vasicek + Bayesian Extension)
 
-This project builds an **end-to-end credit risk modelling pipeline**, extending from loan-level risk estimation to portfolio-level loss simulation and **Bayesian uncertainty modelling**.
+This project builds an end-to-end credit risk modelling pipeline, extending from loan-level estimation to portfolio-level loss simulation and Bayesian uncertainty modelling.
 
-It combines **classical credit risk modelling (PD, LGD, EAD)** with:
-- **Monte Carlo simulation**
-- **Vasicek single-factor framework**
-- **Bayesian inference for PD uncertainty**
+It combines classical credit risk modelling (PD, LGD, EAD) with:
+
+- Monte Carlo simulation  
+- Vasicek single-factor credit risk framework  
+- Bayesian inference for PD uncertainty  
 
 ---
 
 ## 🎯 Project Overview
 
-This project demonstrates how modern credit risk systems are built in layers:
+The project is structured in three layers:
 
-### Loan-Level Models
-- Estimate **Probability of Default (PD)** using Logistic Regression
-- Model **Loss Given Default (LGD)** using a two-stage approach
-- Estimate **Exposure at Default (EAD)** using CCF-based regression
-- Compute **Expected Credit Loss (ECL)**
+### 1. Loan-Level Models
+- Probability of Default (PD) using Logistic Regression  
+- Loss Given Default (LGD) using a two-stage model  
+- Exposure at Default (EAD) using CCF-based regression  
+- Expected Credit Loss (ECL = PD × LGD × EAD)
 
-### Portfolio-Level Risk
-- Model correlated defaults using **Vasicek framework**
-- Simulate loss distribution using **Monte Carlo**
-- Compute **Economic Capital (VaR, CVaR)**
+---
 
-### Bayesian Extension
-- Model PD as a **distribution, not a point estimate**
-- Capture **parameter uncertainty**
-- Derive **data-driven stress scenarios**
+### 2. Portfolio-Level Risk
+- Correlated defaults via Vasicek framework  
+- Monte Carlo simulation of loss distribution  
+- Risk metrics:
+  - Expected Loss (EL)
+  - Value-at-Risk (VaR 99.9%)
+  - Conditional VaR (CVaR)
+  - Economic Capital  
+
+---
+
+### 3. Bayesian Extension
+- PD modeled as a distribution (Beta-Binomial), not a point estimate  
+- Captures parameter uncertainty  
+- Enables data-driven stress scenarios  
 
 ---
 
 ## 🧠 Core Insight
 
-> Credit risk is not driven by individual defaults,  
-> but by how defaults **cluster under economic stress** —  
-> and how uncertain we are about those probabilities.
+Credit risk is not driven by individual defaults,  
+but by how defaults **cluster under economic stress** —  
+and how uncertain we are about those probabilities.
 
 ---
 
 ## 📂 Dataset
 
-- Source: Lending Club Loan Dataset
+**Source:** Lending Club Loan Dataset  
 
-### Target Definition
+**Target Definition:**
 - Charged Off → Default = 1  
 - Fully Paid → Default = 0  
 - Current loans excluded  
+
 
 ---
 
@@ -73,124 +83,114 @@ credit-portfolio-vasicek-simulation/
 
 ---
 
+
+---
+
 ## 🔎 Methodology
 
 ### 1. Data Preparation
-- Filtering loan statuses
-- Creating binary default variable
-- Handling missing values
-- Removing leakage variables
+- Filtering relevant loan statuses  
+- Creating binary default variable  
+- Handling missing values  
+- Removing leakage variables  
 
 ---
 
 ### 2. Variable Diagnostics
-- Distribution analysis
-- Event rate analysis
-- Feature screening
+- Distribution analysis  
+- Event rate checks  
+- Feature screening  
 
 ---
 
-### 3. WoE Binning & IV Selection
-- Weight of Evidence (WoE) transformation
-- Monotonic binning
-- Information Value (IV) for feature selection
+### 3. WoE Binning & IV
+- Weight of Evidence (WoE) transformation  
+- Monotonic binning  
+- Information Value (IV) for feature selection  
 
 ---
 
 ### 4. Probability of Default (PD)
-- Logistic Regression model
-- WoE-transformed features
-- Performance:
-  - AUC ≈ 0.70  
-  - KS ≈ 0.30  
+- Logistic Regression with WoE features  
+
+**Performance:**
+- AUC ≈ 0.70  
+- KS ≈ 0.30  
 
 ---
 
 ### 5. LGD, EAD & ECL
 
-#### LGD
-- Two-stage modelling:
-  - Recovery probability
-  - Recovery rate
+**LGD:**
+- Two-stage model:
+  - Recovery probability  
+  - Recovery rate  
 
-#### EAD
-- Regression-based Credit Conversion Factor (CCF)
+**EAD:**
+- Regression-based Credit Conversion Factor (CCF)  
 
-#### Expected Loss
-$$
+**Expected Loss:**
+\[
 ECL = PD \times LGD \times EAD
-$$
+\]
 
 ---
 
 ### 6. Vasicek Correlation (ρ)
-- Estimated from historical default rates
-- Captures **systematic dependence across borrowers**
+- Estimated from historical default rates  
+- Captures systematic dependence across borrowers  
 
 ---
 
 ### 7. Monte Carlo Portfolio Simulation
 
-#### Framework:
-$$
-Z \sim \mathcal{N}(0,1)
-$$
+Z ~ N(0, 1)
 
-$$
-PD(Z) = \Phi\left(\frac{\Phi^{-1}(PD) - \sqrt{\rho} Z}{\sqrt{1-\rho}}\right)
-$$
+PD(Z) = Φ((Φ⁻¹(PD) - √ρ · Z) / √(1 - ρ))
 
-- Simulate correlated defaults
-- Generate portfolio loss distribution
-- Compute:
-  - Expected Loss (EL)
-  - VaR (99.9%)
-  - CVaR
-  - Economic Capital
+- Simulates correlated defaults  
+- Generates full loss distribution  
+
+**Outputs:**
+- Expected Loss (EL)  
+- VaR (99.9%)  
+- CVaR  
+- Economic Capital  
 
 ---
 
-### ⚡ Computational Design
+## ⚡ Computational Design
 
-- Implemented **batch vectorized simulation**
-- Avoided full matrix allocation (~18GB memory requirement)
-- Balanced **speed vs memory efficiency**
+- Batch vectorized simulation  
+- Avoided full matrix allocation (~18GB memory)  
+- Balanced performance and memory efficiency  
 
 ---
 
 ## 🧮 Bayesian Extension (Notebook 08 & 09)
 
 ### Problem
-
-Traditional models treat PD as a **fixed number**, ignoring estimation uncertainty.
+Traditional models treat PD as a fixed number, ignoring estimation uncertainty.
 
 ---
 
 ### Solution: Beta-Binomial Model
 
-#### Prior:
-$$
-PD \sim \text{Beta}(\alpha, \beta)
-$$
+**Prior:**  
+PD ~ Beta(α, β)
 
-#### Posterior:
-$$
-PD | data \sim \text{Beta}(\alpha + D, \beta + n - D)
-$$
+**Posterior:**  
+PD | data ~ Beta(α + D, β + n − D)
 
-#### Posterior Mean:
-$$
-\mathbb{E}[PD] = \frac{\alpha + D}{\alpha + \beta + n}
-$$
-
+**Posterior Mean:**  
+E[PD] = (α + D) / (α + β + n)
 ---
 
 ### Key Concepts
-
-- PD becomes a **distribution**, not a point estimate  
-- Uncertainty is explicitly modeled  
+- PD becomes a distribution  
+- Uncertainty explicitly modeled  
 - Small samples → wide uncertainty  
-- Large samples → convergence to frequentist estimate  
+- Large samples → convergence  
 
 ---
 
@@ -198,74 +198,66 @@ $$
 
 Instead of arbitrary stress assumptions:
 
-- Use **posterior percentiles**:
-  - 5th percentile → optimistic scenario  
-  - Mean → base case  
-  - 95th percentile → stress scenario  
+- 5th percentile → optimistic  
+- Mean → baseline  
+- 95th percentile → stressed  
 
-Each scenario is fed into the **full Monte Carlo simulation**.
-
----
-
-### Key Insight
-
-> Stress scenarios are derived from **data uncertainty**,  
-> not arbitrary assumptions.
+Each scenario is propagated through the full Monte Carlo simulation.
 
 ---
 
 ## 📊 Key Results
 
-- Simulated EL closely matches model ECL (validation)
+- Simulated EL closely matches model ECL (validation)  
 - Loss distribution:
   - Right-skewed  
   - Fat-tailed  
-- Economic Capital ≈ **13% of exposure**
-- Strong dependence on systematic factor (R² ≈ 0.99)
+- Economic Capital ≈ **13% of exposure**  
+- Strong dependence on systematic factor (R² ≈ 0.99)  
 
 ---
 
 ## 🔬 Model Validation
 
-- Compared Monte Carlo results with **closed-form Vasicek VaR**
+- Compared Monte Carlo results with closed-form Vasicek VaR  
 - Differences explained by:
-  - Homogeneous vs heterogeneous assumptions
+  - Homogeneous vs heterogeneous assumptions  
 
 ---
 
 ## 📊 Correlation Sensitivity
 
 - Higher ρ ⇒ higher VaR and Economic Capital  
-- Demonstrates **default clustering effect**
+- Demonstrates default clustering effect  
 
 ---
 
 ## 🧠 Learning Outcomes
 
-- End-to-end credit risk modelling
-- Portfolio loss simulation
-- Systematic vs idiosyncratic risk
-- Monte Carlo implementation under constraints
-- Bayesian inference in risk modelling
-- Parameter uncertainty and stress testing
+- End-to-end credit risk modelling  
+- Portfolio loss simulation  
+- Systematic vs idiosyncratic risk  
+- Efficient Monte Carlo implementation  
+- Bayesian inference in credit risk  
+- Parameter uncertainty and stress testing  
 
 ---
 
 ## ⚙️ Tech Stack
 
-- Python
-- pandas, numpy
-- scikit-learn, statsmodels
-- scipy
-- matplotlib, seaborn
+- Python  
+- pandas, numpy  
+- scikit-learn, statsmodels  
+- scipy  
+- matplotlib  
 
 ---
 
 ## ⚠️ Disclaimer
 
-- Learning project
-- Not a production/regulatory model
-- Simplifications applied (single-factor, static PD, etc.)
+- Learning project  
+- Not a production/regulatory model  
+- Simplifications applied (single-factor, static PD, etc.)  
 
 ---
 
@@ -277,8 +269,8 @@ Each scenario is fed into the **full Monte Carlo simulation**.
 
 ## 📌 Final Thought
 
-> In credit risk, diversification removes noise —  
-> but not the storm.  
+In credit risk, diversification removes noise —  
+but not the storm.
 
-> And sometimes, the uncertainty in the model  
-> matters as much as the risk it predicts.
+And sometimes, the uncertainty in the model  
+matters as much as the risk it predicts.
